@@ -1,56 +1,54 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package chatsockets;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
-/**
- *
- * @author danie
- */
-public class Tela2 extends javax.swing.JFrame {
+public class Cliente extends javax.swing.JFrame {
     String nome="";
     ObjectOutputStream out;
     ObjectInputStream in;
     static final int CONVERSAR = 1;
     static final int SAIR = 2;
     static final int ATUALIZAR_ONLINE = 3;
-    /**
-     * Creates new form Tela
-     * @throws java.io.IOException
-     */
-    public Tela2() throws IOException {
-        initComponents();
-        Socket socket = new Socket("localhost",123);
-        out = new ObjectOutputStream(socket.getOutputStream());
-        in = new ObjectInputStream(socket.getInputStream());
-        jTAMsgs.setText("Informe seu nome: ");
-        Thread listener = new Thread(() -> {
-            while (true) {
-                try {
-                    int opcao = in.readInt();
+
+    Thread listener;
+    public Cliente() {
+        try {
+            initComponents();
+            Socket socket = new Socket("localhost",123);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+            jTAMsgs.setEditable(false);
+            jTAMsgs.setText("Informe seu nome: ");
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm"); 
+            listener = new Thread(() -> {
+                while (true) {
+                    try {
+                        int opcao = in.readInt();
                         if(opcao==CONVERSAR){
                             String nome = (String) in.readObject();
                             String msg = (String) in.readObject();
-                            jTAMsgs.setText(jTAMsgs.getText()+"\n" + nome + " disse: " + msg);
+                            jTAMsgs.setText(jTAMsgs.getText()+ nome + " disse ("+sdf.format(new Date())+"): " + msg+"\n");
                         }else if(opcao==ATUALIZAR_ONLINE){
                             String online= (String) in.readObject();
                             jTOnline.setText(online);
                         }
-                }catch (IOException | ClassNotFoundException ex) {
-                    Logger.getLogger(Tela2.class.getName()).log(Level.SEVERE, null, ex);
+                    }catch (IOException | ClassNotFoundException ex) {
+                        Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-            }
-        });
-        listener.start();
+            });
+            listener.start();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(rootPane, "Servidor offline.");
+        }
     }
     
     
@@ -74,6 +72,11 @@ public class Tela2 extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jTAMsgs.setColumns(20);
         jTAMsgs.setRows(5);
@@ -144,20 +147,31 @@ public class Tela2 extends javax.swing.JFrame {
                 out.writeObject(nome);
                 jLabel1.setText(nome);
                 jTFTexto.setText("");
+                jTAMsgs.setText("");
             } catch (IOException ex) {
-                Logger.getLogger(Tela2.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
             }
         }else{
             try {
                 out.writeInt(CONVERSAR);
                 out.writeObject(jTFTexto.getText());
-                jTAMsgs.setText(jTAMsgs.getText()+"\n Eu: "+jTFTexto.getText());
+                jTAMsgs.setText(jTAMsgs.getText()+"Eu: "+jTFTexto.getText()+"\n");
                 jTFTexto.setText("");
             } catch (IOException ex) {
-                Logger.getLogger(Tela2.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }//GEN-LAST:event_jBEnviarActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        try {
+            listener.interrupt();
+            out.close();
+            in.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -176,14 +190,26 @@ public class Tela2 extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Tela2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Tela2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Tela2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Tela2.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Cliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -192,11 +218,7 @@ public class Tela2 extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                try {
-                    new Tela2().setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(Tela2.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                new Cliente().setVisible(true);
             }
         });
     }
